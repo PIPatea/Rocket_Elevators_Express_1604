@@ -33,7 +33,7 @@ app.get("/email-list", (req, res) => {
   return res.json({ emails: emailList });
 });
 
-app.get("/region-avg", (reg, res) => {
+app.get("/region-avg", (req, res) => {
   //to extract the value of a specific query parameter (region) so that the application can use it for processing,
   //such as filtering data, performing calculations, or generating a response
   const recievedRegion = req.query.region;
@@ -70,14 +70,75 @@ app.get("/region-avg", (reg, res) => {
   const averageFee = (totalfee / filteredAgents.length).toFixed(2);
   //send the final response to the client
   res.status(200).json({
-    region: region,
+    region: recievedRegion,
     //ensures its floating numbers
-    average: parseFloat(averageRating),
+    averageRating: averageRating,
     //ensures its floating numbers
-    average: parseFloat(averageFee),
+    averagefee: averageFee,
   });
 });
+app.get("/calc-residential", (req, res) => {
+  
+  //to extract the value of a specific query parameter (tier) so that the application can use it for processing,
+  //such as filtering data, performing calculations, or generating a response
+  const Recievedtier = req.query.tier;
+  const apartmentsrecieved = req.query.number_of_apartments;
+  const floorsrecieved = req.query.number_of_floors;
 
-app.listen(PORT, () => {
-  console.log(` server listening on port ${PORT} `);
+  if (!Recievedtier) {
+    return res.status(400).json({
+      message: "region query not recieved ",
+    });
+  }
+  
+  console.log("Tier Recieved from request query: ", Recievedtier);
+  console.log(apartmentsrecieved);
+  console.log(floorsrecieved);
+
+
+//average apartment per floor
+const averageapartment = Math.ceil (apartmentsrecieved  / floorsrecieved )
+
+//Get the number of required elevators
+const requiredeleavator = Math.ceil (averageapartment/6)
+  
+//get the number of elevator floors
+const requiredbanks= Math.ceil (floorsrecieved/20)
+
+//get the total number of elevators by multiplying the required elevators by the number of floors
+const allelavators= Math.ceil (requiredeleavator*requiredbanks)
+
+
+//STANDARD
+//elevator cost is 8000
+//insilattion fee is 10%
+
+//PREMIUM
+//elevator cost is 12000
+//insillation fee is 15%
+
+//EXCELIUM
+//elevator cost is 15000
+//instillation fee is 20%
+
+//MATH DEPENDS ON Recievedtier
+
+//calculate the unit cost depending on the tier
+
+
+//calculate the instialltion fee depending on the tier
+
+
+//get the final cost by adding the unit cost and the instillation fee
+
+
+//POSSIBLE SOLUTIONS
+//make a new function which recieves the unit cost and instillation fee as a parameter
+//let variables and change their value depending on the recieved tier
+//use if statements to do the math differently
+
+
 });
+
+
+///////
