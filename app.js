@@ -78,7 +78,6 @@ app.get("/region-avg", (req, res) => {
   });
 });
 app.get("/calc-residential", (req, res) => {
-  
   //to extract the value of a specific query parameter (tier) so that the application can use it for processing,
   //such as filtering data, performing calculations, or generating a response
   const Recievedtier = req.query.tier;
@@ -90,55 +89,114 @@ app.get("/calc-residential", (req, res) => {
       message: "region query not recieved ",
     });
   }
-  
+
   console.log("Tier Recieved from request query: ", Recievedtier);
   console.log(apartmentsrecieved);
   console.log(floorsrecieved);
 
+  //average apartment per floor
+  const averageapartment = Math.ceil(apartmentsrecieved / floorsrecieved);
 
-//average apartment per floor
-const averageapartment = Math.ceil (apartmentsrecieved  / floorsrecieved )
+  //Get the number of required elevators
+  const requiredeleavator = Math.ceil(averageapartment / 6);
 
-//Get the number of required elevators
-const requiredeleavator = Math.ceil (averageapartment/6)
+  //get the number of elevator floors
+  const requiredbanks = Math.ceil(floorsrecieved / 20);
+
+  //get the total number of elevators by multiplying the required elevators by the number of floors
+  const allelavators = Math.ceil(requiredeleavator * requiredbanks);
+
+  //STANDARD
+  //elevator cost is 8000
+  //insilattion fee is 10%
+
+  //PREMIUM
+  //elevator cost is 12000
+  //insillation fee is 15%
+
+  //EXCELIUM
+  //elevator cost is 15000
+  //instillation fee is 20%
+
+  //MATH DEPENDS ON Recievedtier
+
+  // let totalcost =
+  let elavatorcost = 0;
+  let elavatorfees = 0;
+
+  if (Recievedtier === "standard") {
+    elavatorcost = 8000;
+    elavatorfees = 0.1;
+  } else if (Recievedtier === "premium") {
+    elavatorcost = 12000;
+    elavatorfees = 0.15;
+  } else if (Recievedtier === "excelium") {
+    elavatorcost = 15000;
+    elavatorfees = 0.2;
+  }
+
+  //Get the pre instillation cost by multplying elevator cost by number of elevators
+  const prefee = Math.ceil(elavatorcost * allelavators);
+
+  //Get instillation cost by multiplying pre insitillation cost by the elevator fees
+  const installcost = Math.ceil(prefee * elavatorfees);
+
+  //Get the final cost by adding the insitillation cost and pre instillation cost together
+  const finalcost = Math.ceil(installcost + prefee);
+
+  res.status(200).json({
+    Recievedtier,
+    prefee,
+    finalcost,
+  });
+});
+
+app.use(express.json());
+
+app.post("/contact-us", (req, res) => {
+ 
+
+
+  const firstname = req.body.first_name;
+  const lastname = req.body.last_name;
+  const messageback = req.body.message_back;
+
+  //USE AN IF STATEMENT TO CONFIRM YOU RECIEVED ALL DATA
+  if ( !firstname ) {
+    return res.status(400).json({
+      message: "Action not possible",
+    });
+  }
   
-//get the number of elevator floors
-const requiredbanks= Math.ceil (floorsrecieved/20)
+ else if  (!lastname) {
+    return res.status(400).json({
+      message: "Action not possible",
+    });
+  }
 
-//get the total number of elevators by multiplying the required elevators by the number of floors
-const allelavators= Math.ceil (requiredeleavator*requiredbanks)
+ else if (!messageback) {
+    return res.status(400).json({
+      message: "Action not possible",
+    });
+ }
+  
+  //if you did not send back an error message
 
+  console.log(lastname)
+  console.log(firstname)
+  console.log(messageback)
 
-//STANDARD
-//elevator cost is 8000
-//insilattion fee is 10%
-
-//PREMIUM
-//elevator cost is 12000
-//insillation fee is 15%
-
-//EXCELIUM
-//elevator cost is 15000
-//instillation fee is 20%
-
-//MATH DEPENDS ON Recievedtier
-
-//calculate the unit cost depending on the tier
-
-
-//calculate the instialltion fee depending on the tier
-
-
-//get the final cost by adding the unit cost and the instillation fee
-
-
-//POSSIBLE SOLUTIONS
-//make a new function which recieves the unit cost and instillation fee as a parameter
-//let variables and change their value depending on the recieved tier
-//use if statements to do the math differently
-
-
+  //include information sent by the user
+ res.status(200).json({
+  firstname,
+   lastname,
+  messageback,
+  message:"thank you for your service"
+    });
 });
 
 
-///////
+
+app.listen(PORT, () => {
+  console.log(` server listening on port ${PORT} `);
+});
